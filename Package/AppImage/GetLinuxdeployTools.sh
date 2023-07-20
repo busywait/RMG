@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-script_dir="$(dirname "$0")"
+script_dir="$(realpath $(dirname "$0"))"
 toplvl_dir="$(realpath "$script_dir/../../")"
 
 # A script that needs to be run once to get the linuxdeploy tools
