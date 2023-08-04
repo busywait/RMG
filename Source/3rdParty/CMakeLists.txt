@@ -47,6 +47,7 @@ ExternalProject_Add(mupen64plus-core
         OSD=0 NEW_DYNAREC=1 KEYBINDINGS=0 ACCURATE_FPU=1 
         TARGET=${CORE_FILE} DEBUG=$<CONFIG:Debug> CC=${MAKE_CC_COMPILER} CXX=${MAKE_CXX_COMPILER}
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-core
 
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-core/${CORE_FILE}
@@ -64,6 +65,7 @@ ExternalProject_Add(mupen64plus-rsp-cxd4
         SRCDIR=${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-rsp-cxd4
         APIDIR=${APIDIR} DEBUG=$<CONFIG:Debug> POSTFIX= CC=${MAKE_CC_COMPILER} CXX=${MAKE_CXX_COMPILER}
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-rsp-cxd4
 
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-rsp-cxd4/mupen64plus-rsp-cxd4.${SO_EXT}
@@ -80,6 +82,7 @@ ExternalProject_Add(mupen64plus-rsp-hle
         SRCDIR=${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-rsp-hle/src
         APIDIR=${APIDIR} DEBUG=$<CONFIG:Debug> CC=${MAKE_CC_COMPILER} CXX=${MAKE_CXX_COMPILER}
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-rsp-hle
 
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-rsp-hle/mupen64plus-rsp-hle.${SO_EXT}
@@ -92,6 +95,7 @@ ExternalProject_Add(mupen64plus-rsp-parallel
     INSTALL_COMMAND ""
 
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     CMAKE_ARGS ${CMAKE_CONFIGURE_ARGS}
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-rsp-parallel
 
@@ -105,12 +109,14 @@ ExternalProject_Add(mupen64plus-input-raphnetraw
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
 
-    BUILD_COMMAND make all APIDIR=${APIDIR} DEBUG=$<CONFIG:Debug> CC=${MAKE_CC_COMPILER} CXX=${MAKE_CXX_COMPILER}
+    BUILD_COMMAND make all -f ${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-input-raphnetraw/projects/unix/Makefile
+        SRCDIR=${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-input-raphnetraw/src
+        APIDIR=${APIDIR} DEBUG=$<CONFIG:Debug> CC=${MAKE_CC_COMPILER} CXX=${MAKE_CXX_COMPILER}
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-input-raphnetraw
 
-    BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-input-raphnetraw/projects/unix
-
-    BUILD_BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/mupen64plus-input-raphnetraw/projects/unix/mupen64plus-input-raphnetraw.${SO_EXT}
+    BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-input-raphnetraw/mupen64plus-input-raphnetraw.${SO_EXT}
     DEPENDS mupen64plus-core
 )
 
@@ -149,6 +155,7 @@ ExternalProject_Add(mupen64plus-video-angrylion-plus
     INSTALL_COMMAND ""
 
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     CMAKE_ARGS -DBUILD_MUPEN64PLUS=ON -DBUILD_PROJECT64=OFF -DUSE_QT5=OFF ${CMAKE_CONFIGURE_ARGS}
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-video-angrylion-plus
 
@@ -162,6 +169,7 @@ ExternalProject_Add(mupen64plus-video-GLideN64
     INSTALL_COMMAND ""
 
     BUILD_IN_SOURCE False
+    BUILD_ALWAYS True
     CMAKE_ARGS -DMUPENPLUSAPI=ON -DMUPENPLUSAPI_GLIDENUI=ON -DGLIDENUI_QT6=ON -DUSE_SYSTEM_LIBS=ON ${CMAKE_CONFIGURE_ARGS}
 
     SOURCE_SUBDIR ./src/
@@ -176,7 +184,8 @@ ExternalProject_Add(mupen64plus-video-parallel
     INSTALL_COMMAND ""
 
     BUILD_IN_SOURCE False
-    CMAKE_ARGS -DUSE_QT5=OFF ${CMAKE_CONFIGURE_ARGS}
+    BUILD_ALWAYS True
+    CMAKE_ARGS -DCONFIG_GUI=ON ${CMAKE_CONFIGURE_ARGS}
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-video-parallel
 
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/mupen64plus-video-parallel/mupen64plus-video-parallel.${SO_EXT}
@@ -190,6 +199,7 @@ if (DISCORD_RPC)
         INSTALL_COMMAND ""
 
         BUILD_IN_SOURCE False
+        BUILD_ALWAYS True
         CMAKE_ARGS -DBUILD_EXAMPLES=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON ${CMAKE_CONFIGURE_ARGS}
         BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/discord-rpc
 

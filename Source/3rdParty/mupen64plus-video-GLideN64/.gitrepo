@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:/Rosalie241/GLideN64.git
 	branch = RMG
-	commit = fdb093792607a57dd9adc60c3d9ee4c1990852d3
-	parent = 26414e59cc1359535c4bf26a3ac3f4dec5078446
+	commit = 4dfb530bb6e59a6e30b34355733b4ab99f874018
+	parent = 2283bd1bb2610d00b1ab0ae9093f01b47e299a3c
 	method = merge
 	cmdver = 0.4.6

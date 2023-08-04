@@ -199,7 +199,7 @@ bool apply_plugin_settings(std::string pluginSettings[4])
         }
 
         // copy context string to a c string using strcpy
-        std::strcpy(l_PluginContext[(int)pluginType], get_plugin_context_name(pluginType).c_str());
+        std::strcpy(l_PluginContext[i], get_plugin_context_name(pluginType).c_str());
 
         if (settingValue != l_PluginFiles[i])
         {
@@ -259,7 +259,7 @@ bool apply_plugin_settings(std::string pluginSettings[4])
             }
 
             // attempt to start plugin
-            ret = plugin->Startup(m64p::Core.GetHandle(), (void*)l_PluginContext[(int)pluginType], CoreDebugCallback);
+            ret = plugin->Startup(m64p::Core.GetHandle(), (void*)l_PluginContext[i], CoreDebugCallback);
             if (ret != M64ERR_SUCCESS)
             {
                 error = "apply_plugin_settings (";
@@ -541,7 +541,7 @@ bool CoreDetachPlugins(void)
             break;
         }
     }
-   
+
     return ret == M64ERR_SUCCESS;
 }
 
