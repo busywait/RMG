@@ -32,7 +32,7 @@ class OGLWidget : public QWindow
 
     void SetHideCursor(bool hide);
 
-    QWidget *GetWidget(void);
+    QWidget* GetWidget(void);
 
   protected:
     void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;

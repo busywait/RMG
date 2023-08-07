@@ -56,13 +56,18 @@ void OGLWidget::SetHideCursor(bool hide)
     this->setCursor(hide ? Qt::BlankCursor : Qt::ArrowCursor);
 }
 
-QWidget *OGLWidget::GetWidget(void)
+QWidget* OGLWidget::GetWidget(void)
 {
     return this->widgetContainer;
 }
 
 void OGLWidget::resizeEvent(QResizeEvent *event)
 {
+    if (!this->isVisible())
+    {
+        return;
+    }
+
     if (this->timerId != 0)
     {
         this->killTimer(this->timerId);
@@ -79,6 +84,13 @@ void OGLWidget::resizeEvent(QResizeEvent *event)
 
 void OGLWidget::timerEvent(QTimerEvent *event)
 {
+    if (!this->isVisible())
+    {
+        this->killTimer(this->timerId);
+        this->timerId = 0;
+        return;
+    }
+
     // only remove current timer
     // when setting the video size succeeds
     if (CoreSetVideoSize(this->width, this->height))
