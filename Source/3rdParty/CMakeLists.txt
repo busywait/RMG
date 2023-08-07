@@ -164,7 +164,7 @@ ExternalProject_Add(mupen64plus-video-angrylion-plus
 )
 
 if (RPI4)
-	set(RPI4_ARGS -DMESA=ON -DEGL=ON -v)
+	set(RPI4_ARGS -DMESA=ON -DEGL=ON)
 endif(RPI4)
 
 ExternalProject_Add(mupen64plus-video-GLideN64
