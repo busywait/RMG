@@ -65,6 +65,7 @@ bool MainWindow::Init(QApplication* app, bool showUI)
     this->configureTheme(app);
 
     this->initializeUI();
+    this->initializeActions();
     this->configureUI(app, showUI);
 
     this->connectActionSignals();
@@ -184,11 +185,15 @@ void MainWindow::initializeUI(void)
             &MainWindow::on_RomBrowser_ChangeRomDirectory);
     connect(this->ui_Widget_RomBrowser, &Widget::RomBrowserWidget::RomInformation, this,
             &MainWindow::on_RomBrowser_RomInformation);
+    connect(this->ui_Widget_RomBrowser, &Widget::RomBrowserWidget::FileDropped, this,
+            &MainWindow::on_EventFilter_FileDropped);
 
     connect(this->ui_EventFilter, &EventFilter::on_EventFilter_KeyPressed, this,
             &MainWindow::on_EventFilter_KeyPressed);
     connect(this->ui_EventFilter, &EventFilter::on_EventFilter_KeyReleased, this,
             &MainWindow::on_EventFilter_KeyReleased);
+    connect(this->ui_EventFilter, &EventFilter::on_EventFilter_FileDropped, this,
+            &MainWindow::on_EventFilter_FileDropped);
 }
 
 void MainWindow::configureUI(QApplication* app, bool showUI)
@@ -692,6 +697,16 @@ void MainWindow::updateActions(bool inEmulation, bool isPaused)
     keyBinding = QString::fromStdString(CoreSettingsGetStringValue(SettingsID::Keybinding_ViewLog));
     this->action_View_Log->setShortcut(QKeySequence(keyBinding));
     this->action_View_ClearRomCache->setEnabled(!inEmulation);
+
+    keyBinding = QString::fromStdString(CoreSettingsGetStringValue(SettingsID::KeyBinding_IncreaseVolume));
+    this->action_Audio_IncreaseVolume->setShortcut(QKeySequence(keyBinding));
+    this->action_Audio_IncreaseVolume->setEnabled(inEmulation);
+    keyBinding = QString::fromStdString(CoreSettingsGetStringValue(SettingsID::KeyBinding_DecreaseVolume));
+    this->action_Audio_DecreaseVolume->setShortcut(QKeySequence(keyBinding));
+    this->action_Audio_DecreaseVolume->setEnabled(inEmulation);
+    keyBinding = QString::fromStdString(CoreSettingsGetStringValue(SettingsID::KeyBinding_ToggleMuteVolume));
+    this->action_Audio_ToggleVolumeMute->setShortcut(QKeySequence(keyBinding));
+    this->action_Audio_ToggleVolumeMute->setEnabled(inEmulation);
 }
 
 void MainWindow::updateSaveStateSlotActions(bool inEmulation, bool isPaused)
@@ -823,6 +838,23 @@ Qt::ToolBarArea MainWindow::getToolbarAreaFromSettingArea(int value)
     }
 }
 
+void MainWindow::initializeActions(void)
+{
+    // Audio actions
+    this->action_Audio_IncreaseVolume   = new QAction(this);
+    this->action_Audio_DecreaseVolume   = new QAction(this);
+    this->action_Audio_ToggleVolumeMute = new QAction(this);
+    this->action_Audio_IncreaseVolume->setEnabled(false);
+    this->action_Audio_DecreaseVolume->setEnabled(false);
+    this->action_Audio_ToggleVolumeMute->setEnabled(false);
+
+    // because these are hotkey exclusive actions,
+    // we only have to add them once
+    this->addAction(this->action_Audio_IncreaseVolume);
+    this->addAction(this->action_Audio_DecreaseVolume);
+    this->addAction(this->action_Audio_ToggleVolumeMute);
+}
+
 
 void MainWindow::configureActions(void)
 {
@@ -876,7 +908,7 @@ void MainWindow::configureActions(void)
     };
     int speedActionNumbers[] =
     {
-        25, 50, 75, 100, 
+        25, 50, 75, 100,
         125, 150, 175, 200,
         225, 250, 275, 300
     };
@@ -988,6 +1020,10 @@ void MainWindow::connectActionSignals(void)
     connect(this->action_Help_Github, &QAction::triggered, this, &MainWindow::on_Action_Help_Github);
     connect(this->action_Help_About, &QAction::triggered, this, &MainWindow::on_Action_Help_About);
     connect(this->action_Help_Update, &QAction::triggered, this, &MainWindow::on_Action_Help_Update);
+
+    connect(this->action_Audio_IncreaseVolume, &QAction::triggered, this, &MainWindow::on_Action_Audio_IncreaseVolume);
+    connect(this->action_Audio_DecreaseVolume, &QAction::triggered, this, &MainWindow::on_Action_Audio_DecreaseVolume);
+    connect(this->action_Audio_ToggleVolumeMute, &QAction::triggered, this, &MainWindow::on_Action_Audio_ToggleVolumeMute);
 }
 
 #ifdef UPDATER
@@ -1104,6 +1140,40 @@ void MainWindow::on_EventFilter_KeyReleased(QKeyEvent *event)
     int mod = Utilities::QtModKeyToSdl2ModKey(event->modifiers());
 
     CoreSetKeyUp(key, mod);
+}
+
+void MainWindow::on_EventFilter_FileDropped(QDropEvent *event)
+{
+#ifdef DRAG_DROP
+    const QMimeData *mimeData = event->mimeData();
+
+    if (!mimeData->hasUrls() || !mimeData->urls().first().isLocalFile())
+    {
+        return;
+    }
+
+    bool inEmulation     = (this->ui_Widgets->currentIndex() != 0);
+    bool confirmDragDrop = CoreSettingsGetBoolValue(SettingsID::GUI_ConfirmDragDrop);
+    if (inEmulation && confirmDragDrop)
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "",
+            "Are you sure you want to launch the drag & dropped ROM?",
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    QString file = mimeData->urls().first().toLocalFile();
+
+    if (inEmulation)
+    {
+        this->ui_NoSwitchToRomBrowser = true;
+    }
+
+    this->launchEmulationThread(file);
+#endif // DRAG_DROP
 }
 
 void MainWindow::on_QGuiApplication_applicationStateChanged(Qt::ApplicationState state)
@@ -1652,6 +1722,36 @@ void MainWindow::on_Action_Help_Update(void)
 #ifdef UPDATER
     this->checkForUpdates(false, true);
 #endif // UPDATER
+}
+
+void MainWindow::on_Action_Audio_IncreaseVolume(void)
+{
+    if (!CoreIncreaseVolume())
+    {
+        // It's rather annoying to have an error message pop-up everytime
+        // you use the increase volume hotkey when the volume is already
+        // at 100%, so we'll disable the error message
+        //this->showErrorMessage("CoreIncreaseVolume() Failed", QString::fromStdString(CoreGetError()));
+    }
+}
+
+void MainWindow::on_Action_Audio_DecreaseVolume(void)
+{
+    if (!CoreDecreaseVolume())
+    {
+        // It's rather annoying to have an error message pop-up everytime
+        // you use the decrease volume hotkey when the volume is already
+        // at 0%, so we'll disable the error message
+        //this->showErrorMessage("CoreDecreaseVolume() Failed", QString::fromStdString(CoreGetError()));
+    }
+}
+
+void MainWindow::on_Action_Audio_ToggleVolumeMute(void)
+{
+    if (!CoreToggleMuteVolume())
+    {
+        this->showErrorMessage("CoreToggleMuteVolume() Failed", QString::fromStdString(CoreGetError()));
+    }
 }
 
 void MainWindow::on_Emulation_Started(void)
@@ -2225,6 +2325,21 @@ void MainWindow::on_Core_StateCallback(CoreStateCallbackType type, int value)
         case CoreStateCallbackType::SpeedFactor:
         {
             OnScreenDisplaySetMessage("Playback speed: " + std::to_string(value) + "%");
+        } break;
+        case CoreStateCallbackType::AudioVolume:
+        {
+            OnScreenDisplaySetMessage("Volume: " + std::to_string(value) + "%");
+        } break;
+        case CoreStateCallbackType::AudioMute:
+        {
+            if (value == 0)
+            {
+                OnScreenDisplaySetMessage("Volume unmuted");
+            }
+            else
+            {
+                OnScreenDisplaySetMessage("Volume muted");
+            }
         } break;
         case CoreStateCallbackType::SaveStateLoaded:
         {

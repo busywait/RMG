@@ -379,6 +379,7 @@ void SettingsDialog::loadInterfaceEmulationSettings(void)
     this->hideCursorCheckBox->setChecked(CoreSettingsGetBoolValue(SettingsID::GUI_HideCursorInEmulation));
     this->hideCursorFullscreenCheckBox->setChecked(CoreSettingsGetBoolValue(SettingsID::GUI_HideCursorInFullscreenEmulation));
     this->automaticFullscreenCheckbox->setChecked(CoreSettingsGetBoolValue(SettingsID::GUI_AutomaticFullscreen));
+    this->confirmDragDropCheckBox->setChecked(CoreSettingsGetBoolValue(SettingsID::GUI_ConfirmDragDrop));
     this->statusBarMessageDurationSpinBox->setValue(CoreSettingsGetIntValue(SettingsID::GUI_StatusbarMessageDuration));
 }
 
@@ -539,6 +540,7 @@ void SettingsDialog::loadDefaultInterfaceEmulationSettings(void)
     this->hideCursorCheckBox->setChecked(CoreSettingsGetDefaultBoolValue(SettingsID::GUI_HideCursorInEmulation));
     this->hideCursorFullscreenCheckBox->setChecked(CoreSettingsGetDefaultBoolValue(SettingsID::GUI_HideCursorInFullscreenEmulation));
     this->automaticFullscreenCheckbox->setChecked(CoreSettingsGetDefaultBoolValue(SettingsID::GUI_AutomaticFullscreen));
+    this->confirmDragDropCheckBox->setChecked(CoreSettingsGetDefaultBoolValue(SettingsID::GUI_ConfirmDragDrop));
     this->statusBarMessageDurationSpinBox->setValue(CoreSettingsGetDefaultIntValue(SettingsID::GUI_StatusbarMessageDuration));
 }
 
@@ -746,6 +748,7 @@ void SettingsDialog::saveInterfaceEmulationSettings(void)
     CoreSettingsSetValue(SettingsID::GUI_PauseEmulationOnFocusLoss, this->pauseEmulationOnFocusCheckbox->isChecked());
     CoreSettingsSetValue(SettingsID::GUI_ResumeEmulationOnFocus, this->resumeEmulationOnFocusCheckBox->isChecked());
     CoreSettingsSetValue(SettingsID::GUI_AutomaticFullscreen, this->automaticFullscreenCheckbox->isChecked());
+    CoreSettingsSetValue(SettingsID::GUI_ConfirmDragDrop, this->confirmDragDropCheckBox->isChecked());
     CoreSettingsSetValue(SettingsID::GUI_StatusbarMessageDuration, this->statusBarMessageDurationSpinBox->value());
 }
 
@@ -843,6 +846,13 @@ void SettingsDialog::commonHotkeySettings(SettingsDialogAction action)
         { this->saveState9KeyButton, SettingsID::KeyBinding_SaveStateSlot9 },
     };
 
+    std::vector<keybinding> keybindings_Audio =
+    {
+        { this->increaseVolumeKeyButton, SettingsID::KeyBinding_IncreaseVolume },
+        { this->decreaseVolumeKeyButton, SettingsID::KeyBinding_DecreaseVolume },
+        { this->muteVolumeKeyButton, SettingsID::KeyBinding_ToggleMuteVolume },
+    };
+
     std::vector<keybinding> keybindings_Settings =
     {
         { this->graphicsSettingsKeyButton, SettingsID::KeyBinding_GraphicsSettings },
@@ -876,9 +886,12 @@ void SettingsDialog::commonHotkeySettings(SettingsDialogAction action)
             keybindings.insert(keybindings.end(), keybindings_CurrentSaveState.begin(), keybindings_CurrentSaveState.end());
             break;
         case 3:
-            keybindings.insert(keybindings.end(), keybindings_Settings.begin(), keybindings_Settings.end());
+            keybindings.insert(keybindings.end(), keybindings_Audio.begin(), keybindings_Audio.end());
             break;
         case 4:
+            keybindings.insert(keybindings.end(), keybindings_Settings.begin(), keybindings_Settings.end());
+            break;
+        case 5:
             keybindings.insert(keybindings.end(), keybindings_View.begin(), keybindings_View.end());
             break;
         }
@@ -888,6 +901,7 @@ void SettingsDialog::commonHotkeySettings(SettingsDialogAction action)
         keybindings.insert(keybindings.end(), keybindings_System.begin(), keybindings_System.end());
         keybindings.insert(keybindings.end(), keybindings_SpeedFactor.begin(), keybindings_SpeedFactor.end());
         keybindings.insert(keybindings.end(), keybindings_CurrentSaveState.begin(), keybindings_CurrentSaveState.end());
+        keybindings.insert(keybindings.end(), keybindings_Audio.begin(), keybindings_Audio.end());
         keybindings.insert(keybindings.end(), keybindings_Settings.begin(), keybindings_Settings.end());
         keybindings.insert(keybindings.end(), keybindings_View.begin(), keybindings_View.end());
     }
@@ -1244,6 +1258,9 @@ void SettingsDialog::on_KeybindButton_KeybindingChanged(KeybindButton* button)
         this->saveState7KeyButton,
         this->saveState8KeyButton,
         this->saveState9KeyButton,
+        this->increaseVolumeKeyButton,
+        this->decreaseVolumeKeyButton,
+        this->muteVolumeKeyButton,
         this->exitKeyButton,
         this->graphicsSettingsKeyButton,
         this->audioSettingsKeyButton,

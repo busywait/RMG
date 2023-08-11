@@ -19,12 +19,12 @@ cmake -S "$toplvl_dir" -B "$build_dir" -DRPI4=ON -DCMAKE_BUILD_TYPE="$build_conf
 
 cmake --build "$build_dir" --parallel "$threads"
 
-strip_args=" --strip "
-if [ "$build_config"="Debug" ]
+if [[ "$build_config" = "Debug" ]]
 then
-    strip_args=" "
+    cmake --install "$build_dir" --prefix="$toplvl_dir"
+else
+    cmake --install "$build_dir" --strip --prefix="$toplvl_dir"
 fi
-cmake --install "$build_dir" $strip_args --prefix="$toplvl_dir"
 
 if [[ $(uname -s) = *MINGW64* ]]
 then

@@ -12,6 +12,7 @@ enum class SettingsID
     GUI_PauseEmulationOnFocusLoss,
     GUI_ResumeEmulationOnFocus,
     GUI_AutomaticFullscreen,
+    GUI_ConfirmDragDrop,
     GUI_ShowVerboseLogMessages,
     GUI_OnScreenDisplayEnabled,
     GUI_OnScreenDisplayLocation,
@@ -148,6 +149,9 @@ enum class SettingsID
     KeyBinding_RspSettings,
     KeyBinding_InputSettings,
     KeyBinding_Settings,
+    KeyBinding_IncreaseVolume,
+    KeyBinding_DecreaseVolume,
+    KeyBinding_ToggleMuteVolume,
 
     // RomBrowser Settings
     RomBrowser_Directory,

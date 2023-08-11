@@ -161,6 +161,9 @@ static l_Setting get_setting(SettingsID settingId)
     case SettingsID::GUI_AutomaticFullscreen:
         setting = {SETTING_SECTION_GUI, "AutomaticFullscreen", false};
         break;
+    case SettingsID::GUI_ConfirmDragDrop:
+        setting = {SETTING_SECTION_GUI, "ConfirmDragDrop", true};
+        break;
     case SettingsID::GUI_ShowVerboseLogMessages:
         setting = {SETTING_SECTION_GUI, "ShowVerboseLogMessages", false};
         break;
@@ -538,6 +541,15 @@ static l_Setting get_setting(SettingsID settingId)
         break;
     case SettingsID::KeyBinding_Settings:
         setting = {SETTING_SECTION_KEYBIND, "Settings", "Ctrl+T"};
+        break;
+    case SettingsID::KeyBinding_IncreaseVolume:
+        setting = {SETTING_SECTION_KEYBIND, "IncreaseVolume", ""};
+        break;
+    case SettingsID::KeyBinding_DecreaseVolume:
+        setting = {SETTING_SECTION_KEYBIND, "DecreaseVolume", ""};
+        break;
+    case SettingsID::KeyBinding_ToggleMuteVolume:
+        setting = {SETTING_SECTION_KEYBIND, "ToggleMuteVolume", ""};
         break;
 
     case SettingsID::RomBrowser_Directory:
